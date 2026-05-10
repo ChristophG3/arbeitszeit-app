@@ -26,38 +26,64 @@ export default function Home() {
   const [breakMinutes, setBreakMinutes] = useState(30);
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] =
+    useState<string | null>(null);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7)
+  const [resetValue, setResetValue] =
+    useState(0);
+
+  const [resetNote, setResetNote] =
+    useState("");
+
+  const [selectedMonth, setSelectedMonth] =
+    useState(
+      new Date()
+        .toISOString()
+        .slice(0, 7)
+    );
+
+  const filteredEntries = entries.filter(
+    (entry) =>
+      entry.date.startsWith(
+        selectedMonth
+      )
   );
 
-  const filteredEntries = entries.filter((entry) =>
-    entry.date.startsWith(selectedMonth)
-  );
+  const filteredAdjustments =
+    adjustments.filter((adjustment) =>
+      adjustment.date.startsWith(
+        selectedMonth
+      )
+    );
 
-  const filteredAdjustments = adjustments.filter((adjustment) =>
-    adjustment.date.startsWith(selectedMonth)
-  );
-
-  const holidaysInMonth = bavarianHolidays.filter((holiday) =>
-    holiday.startsWith(selectedMonth)
-  );
+  const holidaysInMonth =
+    bavarianHolidays.filter((holiday) =>
+      holiday.startsWith(
+        selectedMonth
+      )
+    );
 
   const workingDaysInMonth =
-    getWorkingDaysInMonth(selectedMonth);
+    getWorkingDaysInMonth(
+      selectedMonth
+    );
 
-  const totalActualMinutes = filteredEntries.reduce(
-    (sum, entry) =>
-      sum + (entry.actual_minutes ?? 0),
-    holidaysInMonth.length * 360
-  );
+  const totalActualMinutes =
+    filteredEntries.reduce(
+      (sum, entry) =>
+        sum +
+        (entry.actual_minutes ?? 0),
+      holidaysInMonth.length * 360
+    );
 
-  const totalOvertimeMinutes = filteredEntries.reduce(
-    (sum, entry) =>
-      sum + (entry.overtime_minutes ?? 0),
-    0
-  );
+  const totalOvertimeMinutes =
+    filteredEntries.reduce(
+      (sum, entry) =>
+        sum +
+        (entry.overtime_minutes ??
+          0),
+      0
+    );
 
   const totalAdjustmentMinutes =
     filteredAdjustments.reduce(
@@ -69,27 +95,36 @@ export default function Home() {
   const expectedMinutes =
     workingDaysInMonth * 360;
 
-  const vacationDays = filteredEntries.filter(
-    (entry) => entry.status === "VACATION"
-  ).length;
+  const vacationDays =
+    filteredEntries.filter(
+      (entry) =>
+        entry.status ===
+        "VACATION"
+    ).length;
 
-  const sickDays = filteredEntries.filter(
-    (entry) => entry.status === "SICK"
-  ).length;
+  const sickDays =
+    filteredEntries.filter(
+      (entry) =>
+        entry.status === "SICK"
+    ).length;
 
-  const flexDays = filteredEntries.filter(
-    (entry) => entry.status === "FLEXDAY"
-  ).length;
+  const flexDays =
+    filteredEntries.filter(
+      (entry) =>
+        entry.status ===
+        "FLEXDAY"
+    ).length;
 
-  const overtimeBalance = useMemo(() => {
-    return (
-      totalOvertimeMinutes +
-      totalAdjustmentMinutes
-    );
-  }, [
-    totalOvertimeMinutes,
-    totalAdjustmentMinutes,
-  ]);
+  const overtimeBalance =
+    useMemo(() => {
+      return (
+        totalOvertimeMinutes +
+        totalAdjustmentMinutes
+      );
+    }, [
+      totalOvertimeMinutes,
+      totalAdjustmentMinutes,
+    ]);
 
   useEffect(() => {
     loadEntries();
@@ -97,12 +132,13 @@ export default function Home() {
   }, []);
 
   async function loadEntries() {
-    const { data, error } = await supabase
-      .from("time_entries")
-      .select("*")
-      .order("date", {
-        ascending: false,
-      });
+    const { data, error } =
+      await supabase
+        .from("time_entries")
+        .select("*")
+        .order("date", {
+          ascending: false,
+        });
 
     if (!error && data) {
       setEntries(data);
@@ -110,12 +146,15 @@ export default function Home() {
   }
 
   async function loadAdjustments() {
-    const { data, error } = await supabase
-      .from("overtime_adjustments")
-      .select("*")
-      .order("date", {
-        ascending: false,
-      });
+    const { data, error } =
+      await supabase
+        .from(
+          "overtime_adjustments"
+        )
+        .select("*")
+        .order("date", {
+          ascending: false,
+        });
 
     if (!error && data) {
       setAdjustments(data);
@@ -127,11 +166,17 @@ export default function Home() {
 
     setDate(entry.date);
     setStatus(entry.status);
-    setStartTime(entry.start_time || "");
-    setEndTime(entry.end_time || "");
+    setStartTime(
+      entry.start_time || ""
+    );
+    setEndTime(
+      entry.end_time || ""
+    );
+
     setBreakMinutes(
       entry.break_minutes || 30
     );
+
     setNote(entry.note || "");
 
     setMessage(
@@ -149,11 +194,12 @@ export default function Home() {
     let overtimeMinutes = 0;
 
     if (status === "WORK") {
-      actualMinutes = calculateMinutes(
-        startTime,
-        endTime,
-        breakMinutes
-      );
+      actualMinutes =
+        calculateMinutes(
+          startTime,
+          endTime,
+          breakMinutes
+        );
 
       overtimeMinutes =
         actualMinutes - 360;
@@ -177,27 +223,37 @@ export default function Home() {
       status,
       note,
 
-      start_time: startTime || null,
-      end_time: endTime || null,
+      start_time:
+        startTime || null,
 
-      break_minutes: breakMinutes,
-      actual_minutes: actualMinutes,
-      overtime_minutes: overtimeMinutes,
+      end_time:
+        endTime || null,
+
+      break_minutes:
+        breakMinutes,
+
+      actual_minutes:
+        actualMinutes,
+
+      overtime_minutes:
+        overtimeMinutes,
     };
 
     let error;
 
     if (editingId) {
-      const result = await supabase
-        .from("time_entries")
-        .update(payload)
-        .eq("id", editingId);
+      const result =
+        await supabase
+          .from("time_entries")
+          .update(payload)
+          .eq("id", editingId);
 
       error = result.error;
     } else {
-      const result = await supabase
-        .from("time_entries")
-        .insert([payload]);
+      const result =
+        await supabase
+          .from("time_entries")
+          .insert([payload]);
 
       error = result.error;
     }
@@ -224,17 +280,21 @@ export default function Home() {
     }
   }
 
-  async function deleteEntry(id: string) {
-    const confirmed = window.confirm(
-      "Eintrag wirklich löschen?"
-    );
+  async function deleteEntry(
+    id: string
+  ) {
+    const confirmed =
+      window.confirm(
+        "Eintrag wirklich löschen?"
+      );
 
     if (!confirmed) return;
 
-    const { error } = await supabase
-      .from("time_entries")
-      .delete()
-      .eq("id", id);
+    const { error } =
+      await supabase
+        .from("time_entries")
+        .delete()
+        .eq("id", id);
 
     if (error) {
       setMessage(error.message);
@@ -244,6 +304,40 @@ export default function Home() {
       );
 
       loadEntries();
+    }
+  }
+
+  async function saveAdjustment() {
+    const payload = {
+      date: new Date()
+        .toISOString()
+        .slice(0, 10),
+
+      minutes: resetValue,
+
+      note:
+        resetNote ||
+        "Manuelle Korrektur",
+    };
+
+    const { error } =
+      await supabase
+        .from(
+          "overtime_adjustments"
+        )
+        .insert([payload]);
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage(
+        "Überstundenkonto angepasst ✅"
+      );
+
+      setResetValue(0);
+      setResetNote("");
+
+      loadAdjustments();
     }
   }
 
@@ -261,10 +355,14 @@ export default function Home() {
           status={status}
           setStatus={setStatus}
           startTime={startTime}
-          setStartTime={setStartTime}
+          setStartTime={
+            setStartTime
+          }
           endTime={endTime}
           setEndTime={setEndTime}
-          breakMinutes={breakMinutes}
+          breakMinutes={
+            breakMinutes
+          }
           setBreakMinutes={
             setBreakMinutes
           }
@@ -290,7 +388,8 @@ export default function Home() {
             <p className="text-gray-500 mt-1">
               Arbeitszeiten,
               Überstunden und
-              Abwesenheiten verwalten
+              Abwesenheiten
+              verwalten
             </p>
           </div>
 
@@ -298,7 +397,9 @@ export default function Home() {
 
             <input
               type="month"
-              value={selectedMonth}
+              value={
+                selectedMonth
+              }
               onChange={(e) =>
                 setSelectedMonth(
                   e.target.value
@@ -315,6 +416,68 @@ export default function Home() {
             </button>
 
           </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-5 md:p-6">
+
+          <h2 className="text-2xl font-bold mb-2">
+            Überstundenkonto
+            korrigieren
+          </h2>
+
+          <p className="text-gray-500 mb-5">
+            Manuelle Anpassung des
+            Überstundenkontos
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Minuten (+ / -)
+              </label>
+
+              <input
+                type="number"
+                value={resetValue}
+                onChange={(e) =>
+                  setResetValue(
+                    Number(
+                      e.target.value
+                    )
+                  )
+                }
+                className="w-full rounded-2xl border border-gray-300 px-4 py-4"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Notiz
+              </label>
+
+              <input
+                type="text"
+                value={resetNote}
+                onChange={(e) =>
+                  setResetNote(
+                    e.target.value
+                  )
+                }
+                placeholder="z. B. Jahreskorrektur"
+                className="w-full rounded-2xl border border-gray-300 px-4 py-4"
+              />
+            </div>
+
+          </div>
+
+          <button
+            onClick={saveAdjustment}
+            className="mt-5 bg-black text-white px-6 py-4 rounded-2xl"
+          >
+            Korrektur speichern
+          </button>
+
         </div>
 
         <DashboardCards
@@ -349,7 +512,9 @@ export default function Home() {
         <EntriesTable
           entries={filteredEntries}
           editEntry={editEntry}
-          deleteEntry={deleteEntry}
+          deleteEntry={
+            deleteEntry
+          }
         />
 
       </div>
