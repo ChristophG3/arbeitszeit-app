@@ -166,9 +166,11 @@ export default function Home() {
 
     setDate(entry.date);
     setStatus(entry.status);
+
     setStartTime(
       entry.start_time || ""
     );
+
     setEndTime(
       entry.end_time || ""
     );
@@ -201,8 +203,28 @@ export default function Home() {
           breakMinutes
         );
 
+      const currentDate =
+        new Date(date);
+
+      const day =
+        currentDate.getDay();
+
+      const isWeekend =
+        day === 0 || day === 6;
+
+      const isHoliday =
+        bavarianHolidays.includes(
+          date
+        );
+
+      const targetMinutes =
+        isWeekend || isHoliday
+          ? 0
+          : 360;
+
       overtimeMinutes =
-        actualMinutes - 360;
+        actualMinutes -
+        targetMinutes;
     }
 
     if (
